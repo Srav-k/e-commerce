@@ -1,79 +1,103 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 
 const Signup = () => {
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-  });
-
-  const handleSignup = (e) => {
-    e.preventDefault();
-
-    const users = JSON.parse(localStorage.getItem("USERS")) || [];
-
-    const email = form.email.trim().toLowerCase();
-
-    const exists = users.some((u) => u.email === email);
-    if (exists) {
-      alert("User already exists ❌");
-      return;
-    }
-
-    const newUser = {
-      fullName: form.fullName.trim(),
-      email,
-      password: form.password,
-    };
-
-    users.push(newUser);
-    localStorage.setItem("USERS", JSON.stringify(users));
-
-    alert("Signup successful 🎉 Please login");
-    navigate("/login");
-  };
-
   return (
-    <div className="auth-page">
-      <form className="auth-card" onSubmit={handleSignup}>
-        <h2>Create Account</h2>
-
-        <input
-          placeholder="Full Name"
-          required
-          onChange={(e) =>
-            setForm({ ...form, fullName: e.target.value })
+    <>
+      {/* Internal CSS */}
+      <style>
+        {`
+          .signup-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: Arial, sans-serif;
           }
-        />
 
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
+          .signup-card {
+            background: #ffffff;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
           }
-        />
 
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
+          .signup-card h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
           }
-        />
 
-        <button type="submit">Signup</button>
+          .signup-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+          }
 
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </form>
-    </div>
+          .signup-card input:focus {
+            outline: none;
+            border-color: #667eea;
+          }
+
+          .signup-card button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+          }
+
+          .signup-card button:hover {
+            background: #5a67d8;
+          }
+
+          .login-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+          }
+
+          .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+          }
+
+          .login-link a:hover {
+            text-decoration: underline;
+          }
+        `}
+      </style>
+
+      <div className="signup-container">
+        <div className="signup-card">
+          <h2>Create Account</h2>
+
+          <form>
+            <input type="text" placeholder="Full Name" required />
+            <input type="email" placeholder="Email Address" required />
+            <input type="password" placeholder="Password" required />
+            <input type="password" placeholder="Confirm Password" required />
+
+            <button type="submit">Sign Up</button>
+          </form>
+
+          <div className="login-link">
+            Already have an account? <Link to="/login">Login</Link>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

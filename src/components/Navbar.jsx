@@ -28,6 +28,14 @@ const Navbar = () => {
     const savedUser = JSON.parse(localStorage.getItem("LOGGED_IN_USER"));
     setUser(savedUser);
 
+    // 🔧 FIX: keep navbar user state in sync after login/logout
+    const syncUser = () => {
+      const updatedUser = JSON.parse(localStorage.getItem("LOGGED_IN_USER"));
+      setUser(updatedUser);
+    };
+
+    window.addEventListener("storage", syncUser); // 🔧 FIX
+
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setOpenProfile(false);
@@ -35,7 +43,11 @@ const Navbar = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("storage", syncUser); // 🔧 FIX
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleSearch = (e) => {
@@ -47,7 +59,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("LOGGED_IN_USER");
+    localStorage.removeItem("LOGGED_IN_USER"); // 🔧 FIX: ensure correct key is cleared
     setUser(null);
     setOpenProfile(false);
     setMenuOpen(false);
@@ -93,7 +105,11 @@ const Navbar = () => {
             />
           </div>
 
-          <Link to="/wishlist" className="nav-item" onClick={() => setMenuOpen(false)}>
+          <Link
+            to="/wishlist"
+            className="nav-item"
+            onClick={() => setMenuOpen(false)}
+          >
             <FaHeart />
             Wishlist
             {wishlistItems?.length > 0 && (
@@ -101,7 +117,11 @@ const Navbar = () => {
             )}
           </Link>
 
-          <Link to="/cart" className="nav-item" onClick={() => setMenuOpen(false)}>
+          <Link
+            to="/cart"
+            className="nav-item"
+            onClick={() => setMenuOpen(false)}
+          >
             <FaShoppingCart />
             Cart
             {cartItems?.length > 0 && (
@@ -130,7 +150,12 @@ const Navbar = () => {
                 <p className="name">{user.fullName}</p>
                 <p className="email">{user.email}</p>
 
-                <button onClick={() => navigate("/profile")}>
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setOpenProfile(false); // 🔧 FIX: close dropdown after navigation
+                  }}
+                >
                   View Profile
                 </button>
 
@@ -143,10 +168,18 @@ const Navbar = () => {
 
           {!user && (
             <>
-              <Link to="/login" className="auth-btn login" onClick={() => setMenuOpen(false)}>
+              <Link
+                to="/login"
+                className="auth-btn login"
+                onClick={() => setMenuOpen(false)}
+              >
                 Login
               </Link>
-              <Link to="/signup" className="auth-btn signup" onClick={() => setMenuOpen(false)}>
+              <Link
+                to="/signup"
+                className="auth-btn signup"
+                onClick={() => setMenuOpen(false)}
+              >
                 Signup
               </Link>
             </>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
@@ -25,9 +25,17 @@ const Profile = () => {
 
   useEffect(() => {
     const loggedUser = JSON.parse(localStorage.getItem("LOGGED_IN_USER"));
-    if (!loggedUser) return navigate("/login");
-    setUser(loggedUser);
-    setProfileForm(loggedUser);
+    if (!loggedUser) {
+      navigate("/login");
+    } else {
+      setUser(loggedUser);
+      setProfileForm({
+        fullName: loggedUser.fullName || "",
+        mobile: loggedUser.mobile || "",
+        address: loggedUser.address || "",
+        payment: loggedUser.payment || "",
+      });
+    }
   }, [navigate]);
 
   if (!user) return null;
@@ -38,13 +46,7 @@ const Profile = () => {
   };
 
   const saveProfile = () => {
-    const users = JSON.parse(localStorage.getItem("USERS")) || [];
-    const updatedUsers = users.map((u) =>
-      u.email === user.email ? { ...u, ...profileForm } : u
-    );
-
     const updatedUser = { ...user, ...profileForm };
-    localStorage.setItem("USERS", JSON.stringify(updatedUsers));
     localStorage.setItem("LOGGED_IN_USER", JSON.stringify(updatedUser));
     setUser(updatedUser);
     setEditMode(false);
@@ -57,13 +59,7 @@ const Profile = () => {
     if (passwordForm.current !== user.password)
       return alert("Wrong current password ❌");
 
-    const users = JSON.parse(localStorage.getItem("USERS")) || [];
-    const updatedUsers = users.map((u) =>
-      u.email === user.email ? { ...u, password: passwordForm.newPass } : u
-    );
-
     const updatedUser = { ...user, password: passwordForm.newPass };
-    localStorage.setItem("USERS", JSON.stringify(updatedUsers));
     localStorage.setItem("LOGGED_IN_USER", JSON.stringify(updatedUser));
     setUser(updatedUser);
     alert("Password updated 🔐");
@@ -75,180 +71,165 @@ const Profile = () => {
     navigate("/login");
   };
 
-  const orders = JSON.parse(localStorage.getItem("ORDERS")) || [];
-
   const showBack = editMode || activeSection !== "overview";
 
   return (
     <div style={styles.page}>
-      {/* 🌍 GLOBAL BACK BUTTON */}
-      {showBack && (
-        <button style={styles.globalBack} onClick={goBack}>
-          ⬅ Back
-        </button>
-      )}
-
-      <div style={styles.card}>
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div style={styles.avatar}>{user.fullName[0]}</div>
-          <div>
-            <h2 style={styles.name}>{user.fullName}</h2>
-            <p style={styles.sub}>Premium Customer</p>
-          </div>
-          <button
-            style={styles.toggleBtn}
-            onClick={() => setShowDetails(!showDetails)}
-          >
-            {showDetails ? "Collapse" : "Expand"}
+      <div style={styles.cardWrapper}>
+        {showBack && (
+          <button style={styles.backNearCard} onClick={goBack}>
+            ⬅ Back
           </button>
+        )}
+
+        <div style={styles.card}>
+          {/* HEADER */}
+          <div style={styles.header}>
+            <div style={styles.avatar}>
+              {user.fullName ? user.fullName[0] : "U"}
+            </div>
+            <div>
+              <h2 style={styles.name}>{user.fullName}</h2>
+              <p style={styles.sub}>Premium Customer</p>
+            </div>
+            <button
+              style={styles.toggleBtn}
+              onClick={() => setShowDetails(!showDetails)}
+            >
+              {showDetails ? "Collapse" : "Expand"}
+            </button>
+          </div>
+
+          {/* OVERVIEW */}
+          {showDetails && activeSection === "overview" && !editMode && (
+            <>
+              <div style={styles.infoGrid}>
+                <Info label="Email" value={user.email} />
+                <Info label="Mobile" value={user.mobile || "Not added"} />
+                <Info label="Address" value={user.address || "Not added"} />
+                <Info label="Payment" value={user.payment || "Not added"} />
+              </div>
+
+              <div style={styles.actions}>
+                <button style={styles.actionBtn} onClick={() => setEditMode(true)}>
+                  Edit Profile
+                </button>
+                <button
+                  style={styles.actionBtn}
+                  onClick={() => setActiveSection("settings")}
+                >
+                  Settings
+                </button>
+                <button
+                  style={styles.actionBtn}
+                  onClick={() => setActiveSection("orders")}
+                >
+                  My Orders
+                </button>
+                <button
+                  style={{ ...styles.actionBtn, background: "#e53e3e" }}
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* EDIT PROFILE */}
+          {editMode && (
+            <Section title="Edit Profile">
+              <Input
+                value={profileForm.fullName}
+                onChange={(v) => setProfileForm({ ...profileForm, fullName: v })}
+                placeholder="Full Name"
+              />
+              <Input
+                value={profileForm.mobile}
+                onChange={(v) => setProfileForm({ ...profileForm, mobile: v })}
+                placeholder="Mobile"
+              />
+              <Input
+                value={profileForm.address}
+                onChange={(v) => setProfileForm({ ...profileForm, address: v })}
+                placeholder="Address"
+              />
+              <PrimaryBtn text="Save Profile" onClick={saveProfile} />
+            </Section>
+          )}
+
+          {/* SETTINGS */}
+          {activeSection === "settings" && (
+            <Section title="Settings">
+              <Option
+                text="Change Password"
+                onClick={() => setActiveSection("password")}
+              />
+              <Option
+                text="Help & Support"
+                onClick={() => setActiveSection("help")}
+              />
+            </Section>
+          )}
+
+          {/* PASSWORD */}
+          {activeSection === "password" && (
+            <Section title="Change Password">
+              <Input
+                type="password"
+                placeholder="Current Password"
+                value={passwordForm.current}
+                onChange={(v) =>
+                  setPasswordForm({ ...passwordForm, current: v })
+                }
+              />
+              <Input
+                type="password"
+                placeholder="New Password"
+                value={passwordForm.newPass}
+                onChange={(v) =>
+                  setPasswordForm({ ...passwordForm, newPass: v })
+                }
+              />
+              <Input
+                type="password"
+                placeholder="Confirm New Password"
+                value={passwordForm.confirm}
+                onChange={(v) =>
+                  setPasswordForm({ ...passwordForm, confirm: v })
+                }
+              />
+              <PrimaryBtn text="Update Password" onClick={updatePassword} />
+            </Section>
+          )}
+
+          {/* ORDERS */}
+          {activeSection === "orders" && (
+            <Section title="My Orders">
+              <p>You have {user.orders || 0} recent orders.</p>
+              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+                <input
+                  style={styles.input}
+                  placeholder="Order ID"
+                  value={trackId}
+                  onChange={(e) => setTrackId(e.target.value)}
+                />
+                <button style={{ ...styles.primaryBtn, height: 42 }}>
+                  Track
+                </button>
+              </div>
+            </Section>
+          )}
         </div>
-
-        {/* OVERVIEW */}
-        {showDetails && activeSection === "overview" && (
-          <>
-            <div style={styles.infoGrid}>
-              <Info label="Email" value={user.email} />
-              <Info label="Mobile" value={user.mobile || "Not added"} />
-              <Info label="Address" value={user.address || "Not added"} />
-              <Info label="Payment" value={user.payment || "Not added"} />
-            </div>
-
-            <div style={styles.actions}>
-              <button style={styles.actionBtn} onClick={() => setEditMode(true)}>
-                Edit Profile
-              </button>
-              <button
-                style={styles.actionBtn}
-                onClick={() => setActiveSection("settings")}
-              >
-                Settings
-              </button>
-              <button
-                style={styles.actionBtn}
-                onClick={() => setActiveSection("orders")}
-              >
-                My Orders
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* EDIT PROFILE */}
-        {editMode && (
-          <Section title="Edit Profile">
-            <Input
-              value={profileForm.fullName}
-              onChange={(v) =>
-                setProfileForm({ ...profileForm, fullName: v })
-              }
-              placeholder="Full Name"
-            />
-            <Input
-              value={profileForm.mobile}
-              onChange={(v) =>
-                setProfileForm({ ...profileForm, mobile: v })
-              }
-              placeholder="Mobile"
-            />
-            <Input
-              value={profileForm.address}
-              onChange={(v) =>
-                setProfileForm({ ...profileForm, address: v })
-              }
-              placeholder="Address"
-            />
-            <PrimaryBtn text="Save Profile" onClick={saveProfile} />
-          </Section>
-        )}
-
-        {/* SETTINGS */}
-        {activeSection === "settings" && (
-          <Section title="Settings">
-            <Option text="Change Password" onClick={() => setActiveSection("password")} />
-            <Option text="Alerts" onClick={() => setActiveSection("alerts")} />
-            <Option text="Help" onClick={() => setActiveSection("help")} />
-            <Option text="Logout" onClick={logout} />
-          </Section>
-        )}
-
-        {/* PASSWORD */}
-        {activeSection === "password" && (
-          <Section title="Change Password">
-            <Input
-              type="password"
-              placeholder="Current Password"
-              value={passwordForm.current}
-              onChange={(v) =>
-                setPasswordForm({ ...passwordForm, current: v })
-              }
-            />
-            <Input
-              type="password"
-              placeholder="New Password"
-              value={passwordForm.newPass}
-              onChange={(v) =>
-                setPasswordForm({ ...passwordForm, newPass: v })
-              }
-            />
-            <Input
-              type="password"
-              placeholder="Confirm Password"
-              value={passwordForm.confirm}
-              onChange={(v) =>
-                setPasswordForm({ ...passwordForm, confirm: v })
-              }
-            />
-            <PrimaryBtn text="Update Password" onClick={updatePassword} />
-          </Section>
-        )}
-
-        {/* ALERTS */}
-        {activeSection === "alerts" && (
-          <Section title="Alerts">
-            <p>🔔 Email & order notifications enabled</p>
-          </Section>
-        )}
-
-        {/* HELP */}
-        {activeSection === "help" && (
-          <Section title="Help">
-            <p>📧 support@shoonushop.com</p>
-            <p>📞 +91 9000000009</p>
-          </Section>
-        )}
-
-        {/* MY ORDERS */}
-        {activeSection === "orders" && (
-          <Section title="My Orders">
-            <Input
-              placeholder="Enter Order ID"
-              value={trackId}
-              onChange={setTrackId}
-            />
-            <PrimaryBtn text="Track Order" />
-
-            {orders.length === 0 ? (
-              <p style={{ marginTop: 10 }}>No orders yet 📦</p>
-            ) : (
-              orders.map((o) => (
-                <div key={o.id} style={styles.orderItem}>
-                  <strong>Order #{o.id}</strong>
-                  <div>Status: {o.status || "Processing"}</div>
-                </div>
-              ))
-            )}
-          </Section>
-        )}
       </div>
     </div>
   );
 };
 
-/* UI HELPERS */
+/* COMPONENTS */
 const Section = ({ title, children }) => (
   <div style={styles.section}>
-    <h3>{title}</h3>
+    <h3 style={{ marginBottom: 15 }}>{title}</h3>
     {children}
   </div>
 );
@@ -278,120 +259,131 @@ const Option = ({ text, onClick }) => (
 const Info = ({ label, value }) => (
   <div style={styles.infoCard}>
     <strong>{label}</strong>
-    <div>{value}</div>
+    <div style={{ fontSize: 14, marginTop: 5 }}>{value}</div>
   </div>
 );
 
-export default Profile;
-
-/* 🎨 FIXED AUTO HEIGHT + GLOBAL BACK */
+/* STYLES */
 const styles = {
   page: {
     minHeight: "100vh",
     background: "linear-gradient(135deg,#fff7d1,#f4f6fb,#ffeaa7)",
     display: "flex",
     justifyContent: "center",
-    alignItems: "flex-start", // 🔥 FIX
-    padding: "80px 12px 30px",
+    alignItems: "flex-start",
+    padding: "80px 15px",
+    fontFamily: "Arial, sans-serif",
   },
-
-  globalBack: {
-    position: "fixed", // 🔥 FIX
-    top: 90,
-    left: 20,
+  cardWrapper: {
+    position: "relative",
+    width: "100%",
+    maxWidth: 700,
+  },
+  backNearCard: {
+    position: "absolute",
+    top: -45,
+    left: 0,
     background: "#fff",
     border: "1px solid #ddd",
     padding: "8px 14px",
     borderRadius: 8,
     cursor: "pointer",
-    zIndex: 1000,
+    fontWeight: "bold",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
   },
-
   card: {
-    width: "80vh",
-    maxWidth: 720,
     background: "#fff",
-    padding: 22,
-    borderRadius: 18,
-    boxShadow: "0 15px 40px rgba(0,0,0,0.12)",
+    padding: 25,
+    borderRadius: 20,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
   },
-
-  header: { display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" },
+  header: {
+    display: "flex",
+    gap: 15,
+    alignItems: "center",
+    borderBottom: "1px solid #eee",
+    paddingBottom: 20,
+  },
   avatar: {
-    width: 55,
-    height: 55,
+    width: 60,
+    height: 60,
     borderRadius: "50%",
     background: "#d4af37",
     color: "#fff",
-    fontSize: 44,
+    fontSize: 28,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    fontWeight: "bold",
   },
-  name: { fontSize: 22 },
-  sub: { opacity: 0.7 },
-  toggleBtn: { marginLeft: "auto" },
-
+  name: { fontSize: 24, margin: 0 },
+  sub: { opacity: 0.6, margin: 0 },
+  toggleBtn: {
+    marginLeft: "auto",
+    background: "#f5f5f5",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: 6,
+    cursor: "pointer",
+  },
   infoGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))",
-    gap: 14,
-    marginTop: 18,
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: 15,
+    marginTop: 25,
   },
-
   infoCard: {
-    background: "#fff6d8",
-    padding: 14,
+    background: "#fff9e6",
+    padding: 15,
     borderRadius: 12,
   },
-
-  actions: { display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" },
-
+  actions: {
+    display: "flex",
+    gap: 10,
+    marginTop: 25,
+    flexWrap: "wrap",
+  },
   actionBtn: {
-    padding: "10px 18px",
+    padding: "10px 20px",
     borderRadius: 10,
     background: "#d4af37",
     color: "#fff",
     border: "none",
     cursor: "pointer",
+    fontWeight: "bold",
   },
-
   section: {
-    background: "#fffdf2",
-    padding: 18,
-    borderRadius: 14,
-    marginTop: 18,
+    background: "#fdfdfd",
+    padding: 20,
+    borderRadius: 15,
+    marginTop: 20,
+    border: "1px solid #f0f0f0",
   },
-
   option: {
     padding: 12,
     borderRadius: 10,
-    background: "#fff3c4",
+    background: "#fff4d1",
     cursor: "pointer",
     marginBottom: 10,
+    fontWeight: 500,
   },
-
-  orderItem: {
-    background: "#fff3c4",
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-
   input: {
     width: "100%",
     padding: 12,
     borderRadius: 8,
     border: "1px solid #ddd",
-    marginBottom: 10,
+    marginBottom: 12,
+    boxSizing: "border-box",
   },
-
   primaryBtn: {
     background: "#d4af37",
     color: "#fff",
-    padding: "12px 18px",
+    padding: "12px 25px",
     border: "none",
     borderRadius: 10,
     cursor: "pointer",
+    fontWeight: "bold",
   },
 };
+
+export default Profile;
