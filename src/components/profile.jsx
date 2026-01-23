@@ -74,26 +74,26 @@ const Profile = () => {
   const showBack = editMode || activeSection !== "overview";
 
   return (
-    <div style={styles.page}>
-      <div style={styles.cardWrapper}>
+    <div className="profile-page">
+      <div className="card-wrapper">
         {showBack && (
-          <button style={styles.backNearCard} onClick={goBack}>
+          <button className="back-near-card" onClick={goBack}>
             ⬅ Back
           </button>
         )}
 
-        <div style={styles.card}>
+        <div className="profile-card">
           {/* HEADER */}
-          <div style={styles.header}>
-            <div style={styles.avatar}>
+          <div className="profile-header">
+            <div className="avatar">
               {user.fullName ? user.fullName[0] : "U"}
             </div>
-            <div>
-              <h2 style={styles.name}>{user.fullName}</h2>
-              <p style={styles.sub}>Premium Customer</p>
+            <div className="header-text">
+              <h2 className="user-name">{user.fullName}</h2>
+              <p className="user-sub">Premium Customer</p>
             </div>
             <button
-              style={styles.toggleBtn}
+              className="toggle-btn"
               onClick={() => setShowDetails(!showDetails)}
             >
               {showDetails ? "Collapse" : "Expand"}
@@ -103,31 +103,31 @@ const Profile = () => {
           {/* OVERVIEW */}
           {showDetails && activeSection === "overview" && !editMode && (
             <>
-              <div style={styles.infoGrid}>
+              <div className="info-grid">
                 <Info label="Email" value={user.email} />
                 <Info label="Mobile" value={user.mobile || "Not added"} />
                 <Info label="Address" value={user.address || "Not added"} />
                 <Info label="Payment" value={user.payment || "Not added"} />
               </div>
 
-              <div style={styles.actions}>
-                <button style={styles.actionBtn} onClick={() => setEditMode(true)}>
+              <div className="profile-actions">
+                <button className="action-btn" onClick={() => setEditMode(true)}>
                   Edit Profile
                 </button>
                 <button
-                  style={styles.actionBtn}
+                  className="action-btn"
                   onClick={() => setActiveSection("settings")}
                 >
                   Settings
                 </button>
                 <button
-                  style={styles.actionBtn}
+                  className="action-btn"
                   onClick={() => setActiveSection("orders")}
                 >
                   My Orders
                 </button>
                 <button
-                  style={{ ...styles.actionBtn, background: "#e53e3e" }}
+                  className="action-btn logout-btn"
                   onClick={logout}
                 >
                   Logout
@@ -207,14 +207,14 @@ const Profile = () => {
           {activeSection === "orders" && (
             <Section title="My Orders">
               <p>You have {user.orders || 0} recent orders.</p>
-              <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+              <div className="track-order-group">
                 <input
-                  style={styles.input}
+                  className="profile-input"
                   placeholder="Order ID"
                   value={trackId}
                   onChange={(e) => setTrackId(e.target.value)}
                 />
-                <button style={{ ...styles.primaryBtn, height: 42 }}>
+                <button className="profile-primary-btn track-btn">
                   Track
                 </button>
               </div>
@@ -222,13 +222,197 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      <style>{`
+        /* =========================================
+           1. BASE STYLES
+           ========================================= */
+        .profile-page {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #fff7d1, #f4f6fb, #ffeaa7);
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          padding: 80px 15px;
+          font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .card-wrapper {
+          position: relative;
+          width: 100%;
+          max-width: 700px;
+        }
+
+        .back-near-card {
+          position: absolute;
+          top: -45px;
+          left: 0;
+          background: #fff;
+          border: 1px solid #ddd;
+          padding: 8px 14px;
+          borderRadius: 8px;
+          cursor: pointer;
+          font-weight: bold;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .profile-card {
+          background: #fff;
+          padding: 25px;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+          display: flex;
+          gap: 15px;
+          align-items: center;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 20px;
+        }
+
+        .avatar {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: #d4af37;
+          color: #fff;
+          font-size: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+        }
+
+        .user-name { font-size: 24px; margin: 0; }
+        .user-sub { opacity: 0.6; margin: 0; font-size: 14px; }
+
+        .toggle-btn {
+          margin-left: auto;
+          background: #f5f5f5;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+        .info-grid {
+          display: grid;
+          gap: 15px;
+          margin-top: 25px;
+        }
+
+        .info-card {
+          background: #fff9e6;
+          padding: 15px;
+          border-radius: 12px;
+        }
+
+        .profile-actions {
+          display: flex;
+          gap: 10px;
+          margin-top: 25px;
+          flex-wrap: wrap;
+        }
+
+        .action-btn {
+          padding: 10px 20px;
+          border-radius: 10px;
+          background: #d4af37;
+          color: #fff;
+          border: none;
+          cursor: pointer;
+          font-weight: bold;
+          flex: 1 1 auto;
+          text-align: center;
+        }
+
+        .logout-btn { background: #e53e3e; }
+
+        .profile-section {
+          background: #fdfdfd;
+          padding: 20px;
+          border-radius: 15px;
+          margin-top: 20px;
+          border: 1px solid #f0f0f0;
+        }
+
+        .profile-option {
+          padding: 12px;
+          border-radius: 10px;
+          background: #fff4d1;
+          cursor: pointer;
+          margin-bottom: 10px;
+          font-weight: 500;
+          transition: 0.2s;
+        }
+        .profile-option:hover { background: #ffeaa7; }
+
+        .profile-input {
+          width: 100%;
+          padding: 12px;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          margin-bottom: 12px;
+          box-sizing: border-box;
+        }
+
+        .profile-primary-btn {
+          background: #d4af37;
+          color: #fff;
+          padding: 12px 25px;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-weight: bold;
+          width: 100%;
+        }
+
+        /* =========================================
+           2. MOBILE (Up to 480px)
+           ========================================= */
+        @media (max-width: 480px) {
+          .profile-page { padding: 60px 10px; }
+          .profile-header { flex-direction: column; text-align: center; }
+          .toggle-btn { margin: 10px 0 0 0; width: 100%; }
+          .info-grid { grid-template-columns: 1fr; }
+          .action-btn { width: 100%; }
+          .track-order-group { flex-direction: column; }
+        }
+
+        /* =========================================
+           3. TABLET (481px - 768px)
+           ========================================= */
+        @media (min-width: 481px) and (max-width: 768px) {
+          .info-grid { grid-template-columns: 1fr 1fr; }
+          .track-order-group { display: flex; gap: 10px; }
+          .track-btn { width: auto; height: 42px; }
+        }
+
+        /* =========================================
+           4. LAPTOP (769px - 1200px)
+           ========================================= */
+        @media (min-width: 769px) {
+          .info-grid { grid-template-columns: repeat(2, 1fr); }
+          .track-order-group { display: flex; gap: 10px; }
+          .track-btn { width: auto; height: 42px; }
+        }
+
+        /* =========================================
+           5. DESKTOP (1201px and above)
+           ========================================= */
+        @media (min-width: 1201px) {
+          .card-wrapper { max-width: 800px; }
+          .profile-card { padding: 40px; }
+        }
+      `}</style>
     </div>
   );
 };
 
-/* COMPONENTS */
+/* HELPER COMPONENTS */
 const Section = ({ title, children }) => (
-  <div style={styles.section}>
+  <div className="profile-section">
     <h3 style={{ marginBottom: 15 }}>{title}</h3>
     {children}
   </div>
@@ -236,7 +420,7 @@ const Section = ({ title, children }) => (
 
 const Input = ({ value, onChange, placeholder, type = "text" }) => (
   <input
-    style={styles.input}
+    className="profile-input"
     type={type}
     value={value}
     onChange={(e) => onChange(e.target.value)}
@@ -245,145 +429,22 @@ const Input = ({ value, onChange, placeholder, type = "text" }) => (
 );
 
 const PrimaryBtn = ({ text, onClick }) => (
-  <button style={styles.primaryBtn} onClick={onClick}>
+  <button className="profile-primary-btn" onClick={onClick}>
     {text}
   </button>
 );
 
 const Option = ({ text, onClick }) => (
-  <div style={styles.option} onClick={onClick}>
+  <div className="profile-option" onClick={onClick}>
     {text}
   </div>
 );
 
 const Info = ({ label, value }) => (
-  <div style={styles.infoCard}>
+  <div className="info-card">
     <strong>{label}</strong>
     <div style={{ fontSize: 14, marginTop: 5 }}>{value}</div>
   </div>
 );
-
-/* STYLES */
-const styles = {
-  page: {
-    minHeight: "100vh",
-    background: "linear-gradient(135deg,#fff7d1,#f4f6fb,#ffeaa7)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "flex-start",
-    padding: "80px 15px",
-    fontFamily: "Arial, sans-serif",
-  },
-  cardWrapper: {
-    position: "relative",
-    width: "100%",
-    maxWidth: 700,
-  },
-  backNearCard: {
-    position: "absolute",
-    top: -45,
-    left: 0,
-    background: "#fff",
-    border: "1px solid #ddd",
-    padding: "8px 14px",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontWeight: "bold",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-  },
-  card: {
-    background: "#fff",
-    padding: 25,
-    borderRadius: 20,
-    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-  },
-  header: {
-    display: "flex",
-    gap: 15,
-    alignItems: "center",
-    borderBottom: "1px solid #eee",
-    paddingBottom: 20,
-  },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: "50%",
-    background: "#d4af37",
-    color: "#fff",
-    fontSize: 28,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "bold",
-  },
-  name: { fontSize: 24, margin: 0 },
-  sub: { opacity: 0.6, margin: 0 },
-  toggleBtn: {
-    marginLeft: "auto",
-    background: "#f5f5f5",
-    border: "none",
-    padding: "6px 12px",
-    borderRadius: 6,
-    cursor: "pointer",
-  },
-  infoGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: 15,
-    marginTop: 25,
-  },
-  infoCard: {
-    background: "#fff9e6",
-    padding: 15,
-    borderRadius: 12,
-  },
-  actions: {
-    display: "flex",
-    gap: 10,
-    marginTop: 25,
-    flexWrap: "wrap",
-  },
-  actionBtn: {
-    padding: "10px 20px",
-    borderRadius: 10,
-    background: "#d4af37",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-  section: {
-    background: "#fdfdfd",
-    padding: 20,
-    borderRadius: 15,
-    marginTop: 20,
-    border: "1px solid #f0f0f0",
-  },
-  option: {
-    padding: 12,
-    borderRadius: 10,
-    background: "#fff4d1",
-    cursor: "pointer",
-    marginBottom: 10,
-    fontWeight: 500,
-  },
-  input: {
-    width: "100%",
-    padding: 12,
-    borderRadius: 8,
-    border: "1px solid #ddd",
-    marginBottom: 12,
-    boxSizing: "border-box",
-  },
-  primaryBtn: {
-    background: "#d4af37",
-    color: "#fff",
-    padding: "12px 25px",
-    border: "none",
-    borderRadius: 10,
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
-};
 
 export default Profile;

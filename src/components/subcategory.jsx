@@ -4,317 +4,329 @@ import { products } from "../data/products";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 
-/* ---------------- STYLES ---------------- (NO CHANGES HERE) */
-
-const styles = {
- page: {
-  padding: "20px 40px",
-  background: "#f9f9f9",
-  minHeight: "100vh",
- },
-
- backBtn: {
-  background: "#fff",
-  border: "1px solid #ddd",
-  padding: "8px 16px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  marginBottom: "12px",
-  fontWeight: "500",
- },
-
- breadcrumb: {
-  color: "#777",
-  marginBottom: "10px",
-  textTransform: "capitalize",
- },
-
- title: {
-  fontSize: "32px",
-  fontWeight: "600",
-  marginBottom: "12px",
-  textTransform: "capitalize",
-  textAlign: "center", // ✅ centered
- },
-
- filterRow: {
-  display: "flex",
-  gap: "12px",
-  flexWrap: "wrap",
-  justifyContent: "center", // ✅ centered pills
-  alignItems: "center",
-  marginBottom: "35px",
- },
-
- filterBtn: {
-  padding: "8px 18px",
-  borderRadius: "20px",
-  border: "1px solid #ddd",
-  background: "#fff",
-  cursor: "pointer",
-  fontSize: "14px",
-  transition: "all .25s",
- },
-
- filterActive: {
-  background: "#ff6a00",
-  color: "#fff",
-  borderColor: "#ff6a00",
- },
-
- layout: {
-  display: "flex",
-  gap: "30px",
- },
-
- sidebar: {
-  width: "230px",
-  background: "#fff",
-  borderRadius: "14px",
-  padding: "18px",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-  height: "fit-content",
- },
-
- sidebarTitle: {
-  fontWeight: "600",
-  marginBottom: "12px",
- },
-
- grid: {
-  flex: 1,
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-  gap: "30px",
- },
-
- card: {
-  background: "#fff",
-  borderRadius: "14px",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-  overflow: "hidden",
- },
-
- imageContainer: {
-  height: "220px",
-  padding: "10px",
-  cursor: "pointer",
- },
-
- image: {
-  width: "100%",
-  height: "100%",
-  objectFit: "contain",
- },
-
- cardInfo: {
-  padding: "15px",
-  textAlign: "center",
- },
-
- price: {
-  color: "#e63946",
-  fontWeight: "600",
-  marginBottom: "8px",
- },
-
- buttons: {
-  display: "flex",
-  gap: "10px",
-  justifyContent: "center",
- },
-
- addBtn: {
-  flex: 1,
-  background: "linear-gradient(135deg, #ff6a00, #ff3d00)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "10px",
-  padding: "10px",
-  fontWeight: "600",
-  cursor: "pointer",
- },
-
- wishlistBtn: {
-  width: "42px",
-  height: "42px",
-  borderRadius: "50%",
-  border: "none",
-  cursor: "pointer",
-  background: "#fff",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-  fontSize: "18px",
- },
-
- wishlistActive: {
-  background: "#ffe6ea",
- },
-};
-
 /* ---------------- LOGIC ---------------- */
-
 const normalize = (str) =>
- str?.toLowerCase().replace(/\s|&|-/g, "") || "";
+  str?.toLowerCase().replace(/\s|&|-/g, "") || "";
 
-// ✅ NEW LOGIC: Map the URL slug to the category name in your product data.
 const URL_CATEGORY_MAP = {
     'homefurniture': 'homedecor',
-    // Add other inconsistent mappings here if needed.
 };
 
 const SubCategory = () => {
- const { category, subCategory } = useParams();
- const navigate = useNavigate();
- const { addToCart } = useCart();
- const { wishlistItems, toggleWishlist } = useWishlist();
+  const { category, subCategory } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const { wishlistItems, toggleWishlist } = useWishlist();
 
- const [selectedSub, setSelectedSub] = useState("all");
+  const [selectedSub, setSelectedSub] = useState("all");
 
- // The normalized URL parameter (e.g., 'homefurniture' or 'furniture')
- const paramNormRaw = normalize(category || subCategory);
- 
- // ✅ FIX: Check the map for a category match, otherwise use the raw param.
- // This ensures 'homefurniture' is treated as 'homedecor' for filtering.
- const paramNorm = URL_CATEGORY_MAP[paramNormRaw] || paramNormRaw;
+  const paramNormRaw = normalize(category || subCategory);
+  const paramNorm = URL_CATEGORY_MAP[paramNormRaw] || paramNormRaw;
 
- const subCategories = useMemo(() => {
-  const subs = products
-   .filter((p) => {
-    const catNorm = normalize(p.category);
-    const subNorm = normalize(p.subCategory);
-        // FIX: Use the mapped paramNorm for base matching
-    return catNorm === paramNorm || subNorm === paramNorm; 
-   })
-   .map((p) => p.subCategory)
-   .filter(Boolean);
+  const subCategories = useMemo(() => {
+    const subs = products
+      .filter((p) => {
+        const catNorm = normalize(p.category);
+        const subNorm = normalize(p.subCategory);
+        return catNorm === paramNorm || subNorm === paramNorm; 
+      })
+      .map((p) => p.subCategory)
+      .filter(Boolean);
 
-  return ["all", ...new Set(subs)];
- }, [paramNorm]); // FIX: Dependency changed to paramNorm (the mapped value)
+    return ["all", ...new Set(subs)];
+  }, [paramNorm]);
 
- const filteredProducts = useMemo(() => {
-  return products.filter((p) => {
-   const catNorm = normalize(p.category);
-   const subNorm = normalize(p.subCategory);
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const catNorm = normalize(p.category);
+      const subNorm = normalize(p.subCategory);
+      const baseMatch = catNorm === paramNorm || subNorm === paramNorm; 
+      const subMatch =
+        selectedSub === "all"
+          ? true
+          : normalize(p.subCategory) === normalize(selectedSub);
+      return baseMatch && subMatch;
+    });
+  }, [paramNorm, selectedSub]);
 
-      // FIX: Use the mapped paramNorm for the base filter check
-   const baseMatch = catNorm === paramNorm || subNorm === paramNorm; 
-   
-   const subMatch =
-    selectedSub === "all"
-     ? true
-     : normalize(p.subCategory) === normalize(selectedSub);
-
-   return baseMatch && subMatch;
-  });
- }, [paramNorm, selectedSub]); // FIX: Dependency changed to paramNorm
-
- return (
-  <div style={styles.page}>
-   {/* BACK */}
-   <button style={styles.backBtn} onClick={() => navigate(-1)}>
-    ← Back
-   </button>
-
-   <div style={styles.breadcrumb}>
-    Home / {(category || subCategory)?.replace("-", " ")}
-   </div>
-
-   {/* HEADING */}
-   <h2 style={styles.title}>
-    {(category || subCategory)?.replace("-", " ")}
-   </h2>
-
-   {/* CENTER FILTER PILLS */}
-   <div style={styles.filterRow}>
-    {subCategories.map((sub, i) => (
-     <button
-      key={i}
-      style={{
-       ...styles.filterBtn,
-       ...(selectedSub === sub ? styles.filterActive : {}),
-      }}
-      onClick={() => setSelectedSub(sub)}
-     >
-      {sub === "all" ? "All" : sub}
-     </button>
-    ))}
-   </div>
-
-   <div style={styles.layout}>
-    {/* LEFT SIDEBAR */}
-    <aside style={styles.sidebar}>
-     <div style={styles.sidebarTitle}>Filter By</div>
-
-     {subCategories.map((sub, i) => (
-      <button
-       key={i}
-       style={{
-        ...styles.filterBtn,
-        width: "100%",
-        marginBottom: "10px",
-        ...(selectedSub === sub ? styles.filterActive : {}),
-       }}
-       onClick={() => setSelectedSub(sub)}
-      >
-       {sub === "all" ? "All Products" : sub}
+  return (
+    <div className="subcategory-page">
+      <button className="back-button" onClick={() => navigate(-1)}>
+        ← Back
       </button>
-     ))}
-    </aside>
 
-    {/* PRODUCTS */}
-    <div style={styles.grid}>
-     {filteredProducts.map((p) => {
-      const inWishlist = wishlistItems.some((w) => w.id === p.id);
+      <div className="breadcrumb">
+        Home / {(category || subCategory)?.replace("-", " ")}
+      </div>
 
-      return (
-       <div key={p.id} style={styles.card}>
-        <div
-         style={styles.imageContainer}
-         onClick={() => navigate(`/product/${p.id}`)}
-        >
-         <img
-          src={p.image}
-          alt={p.name}
-          style={styles.image}
-          onError={(e) =>
-           (e.target.src =
-            "https://via.placeholder.com/150?text=No+Image")
-          }
-         />
-         
-        </div>
+      <h2 className="page-title">
+        {(category || subCategory)?.replace("-", " ")}
+      </h2>
 
-        <div style={styles.cardInfo}>
-         <h4>{p.name}</h4>
-         <p style={styles.price}>₹{p.price}</p>
-
-         <div style={styles.buttons}>
+      {/* TOP FILTER PILLS (Visible on Mobile/Tablet) */}
+      <div className="top-filter-row">
+        {subCategories.map((sub, i) => (
           <button
-           style={styles.addBtn}
-           onClick={() => addToCart(p, 1)}
+            key={i}
+            className={`filter-pill ${selectedSub === sub ? "active" : ""}`}
+            onClick={() => setSelectedSub(sub)}
           >
-           🛒 Add to Cart
-
-                  </button>
-
-          <button
-           style={{
-            ...styles.wishlistBtn,
-            ...(inWishlist ? styles.wishlistActive : {}),
-           }}
-           onClick={() => toggleWishlist(p)}
-          >
-           {inWishlist ? "❤️" : "🤍"}
+            {sub === "all" ? "All" : sub}
           </button>
-         </div>
+        ))}
+      </div>
+
+      <div className="main-layout">
+        {/* LEFT SIDEBAR (Hidden on Mobile) */}
+        <aside className="sidebar">
+          <div className="sidebar-title">Filter By</div>
+          {subCategories.map((sub, i) => (
+            <button
+              key={i}
+              className={`sidebar-filter-btn ${selectedSub === sub ? "active" : ""}`}
+              onClick={() => setSelectedSub(sub)}
+            >
+              {sub === "all" ? "All Products" : sub}
+            </button>
+          ))}
+        </aside>
+
+        {/* PRODUCT GRID */}
+        <div className="product-grid">
+          {filteredProducts.map((p) => {
+            const inWishlist = wishlistItems.some((w) => w.id === p.id);
+            return (
+              <div key={p.id} className="product-card">
+                <div className="image-wrapper" onClick={() => navigate(`/product/${p.id}`)}>
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="product-img"
+                    onError={(e) => (e.target.src = "https://via.placeholder.com/150?text=No+Image")}
+                  />
+                </div>
+
+                <div className="product-info">
+                  <h4>{p.name}</h4>
+                  <p className="product-price">₹{p.price}</p>
+                  <div className="card-buttons">
+                    <button className="add-to-cart-btn" onClick={() => addToCart(p, 1)}>
+                      🛒 Add
+                    </button>
+                    <button 
+                      className={`wishlist-toggle-btn ${inWishlist ? "active" : ""}`}
+                      onClick={() => toggleWishlist(p)}
+                    >
+                      {inWishlist ? "❤️" : "🤍"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-       </div>
-      );
-     })}
+      </div>
+
+      <style>{`
+        /* =========================================
+           1. BASE STYLES
+           ========================================= */
+        .subcategory-page {
+          background: #f9f9f9;
+          min-height: 100vh;
+          font-family: sans-serif;
+        }
+
+        .back-button {
+          background: #fff;
+          border: 1px solid #ddd;
+          padding: 8px 16px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 500;
+        }
+
+        .breadcrumb {
+          color: #777;
+          text-transform: capitalize;
+          margin: 10px 0;
+        }
+
+        .page-title {
+          font-weight: 600;
+          text-transform: capitalize;
+          text-align: center;
+          color: #222;
+        }
+
+        .top-filter-row {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-bottom: 25px;
+        }
+
+        .filter-pill {
+          padding: 8px 18px;
+          border-radius: 20px;
+          border: 1px solid #ddd;
+          background: #fff;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+
+        .filter-pill.active {
+          background: #ff6a00;
+          color: #fff;
+          border-color: #ff6a00;
+        }
+
+        .main-layout {
+          display: flex;
+          gap: 30px;
+        }
+
+        .sidebar {
+          width: 230px;
+          background: #fff;
+          border-radius: 14px;
+          padding: 18px;
+          box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+          height: fit-content;
+        }
+
+        .sidebar-title {
+          font-weight: 600;
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #eee;
+        }
+
+        .sidebar-filter-btn {
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 8px;
+          border: 1px solid transparent;
+          background: transparent;
+          text-align: left;
+          cursor: pointer;
+          border-radius: 8px;
+        }
+
+        .sidebar-filter-btn.active {
+          background: #fff5ee;
+          color: #ff6a00;
+          border-color: #ff6a00;
+          font-weight: 600;
+        }
+
+        .product-grid {
+          flex: 1;
+          display: grid;
+          gap: 20px;
+        }
+
+        .product-card {
+          background: #fff;
+          border-radius: 14px;
+          box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+          overflow: hidden;
+          transition: 0.3s;
+        }
+
+        .image-wrapper {
+          height: 200px;
+          padding: 10px;
+          cursor: pointer;
+        }
+
+        .product-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
+        .product-info {
+          padding: 15px;
+          text-align: center;
+        }
+
+        .product-price {
+          color: #e63946;
+          font-weight: 600;
+          margin: 8px 0;
+        }
+
+        .card-buttons {
+          display: flex;
+          gap: 10px;
+        }
+
+        .add-to-cart-btn {
+          flex: 1;
+          background: linear-gradient(135deg, #ff6a00, #ff3d00);
+          color: #fff;
+          border: none;
+          border-radius: 10px;
+          padding: 10px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .wishlist-toggle-btn {
+          width: 40px;
+          border: 1px solid #eee;
+          background: #fff;
+          border-radius: 10px;
+          cursor: pointer;
+        }
+
+        .wishlist-toggle-btn.active {
+          background: #ffe6ea;
+        }
+
+        /* =========================================
+           2. MOBILE (up to 480px)
+           ========================================= */
+        @media (max-width: 480px) {
+          .subcategory-page { padding: 15px; }
+          .sidebar { display: none; } /* Hide sidebar on mobile */
+          .product-grid { grid-template-columns: 1fr; }
+          .page-title { font-size: 24px; }
+          .image-wrapper { height: 180px; }
+        }
+
+        /* =========================================
+           3. TABLET (481px to 768px)
+           ========================================= */
+        @media (min-width: 481px) and (max-width: 768px) {
+          .subcategory-page { padding: 20px; }
+          .sidebar { display: none; } /* Still hide sidebar */
+          .product-grid { grid-template-columns: repeat(2, 1fr); }
+          .page-title { font-size: 28px; }
+        }
+
+        /* =========================================
+           4. LAPTOP (769px to 1200px)
+           ========================================= */
+        @media (min-width: 769px) and (max-width: 1200px) {
+          .subcategory-page { padding: 30px; }
+          .top-filter-row { display: none; } /* Show sidebar instead */
+          .product-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* =========================================
+           5. DESKTOP (1201px +)
+           ========================================= */
+        @media (min-width: 1201px) {
+          .subcategory-page { padding: 40px 10%; }
+          .top-filter-row { display: none; }
+          .product-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+      `}</style>
     </div>
-   </div>
-  </div>
- );
+  );
 };
 
 export default SubCategory;

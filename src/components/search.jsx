@@ -1,3 +1,4 @@
+import React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { products } from "../data/products";
 
@@ -24,16 +25,21 @@ const Search = () => {
   return (
     <div className="search-page">
       {/* BACK BUTTON */}
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ← Back
-      </button>
+      <div className="search-header">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          ← Back
+        </button>
+      </div>
 
       <h2 className="search-title">
         Search results for <span>"{query}"</span>
       </h2>
 
       {filteredProducts.length === 0 ? (
-        <p className="no-results">No products found.</p>
+        <div className="no-results-box">
+          <p className="no-results">No products found matching your search.</p>
+          <button className="home-link" onClick={() => navigate("/")}>Browse All Products</button>
+        </div>
       ) : (
         <div className="product-grid">
           {filteredProducts.map((p) => (
@@ -42,17 +48,20 @@ const Search = () => {
               className="product-card"
               onClick={() => navigate(`/product/${p.id}`)}
             >
-              <img
-                src={p.image}
-                alt={p.name}
-                onError={(e) =>
-                  (e.target.src =
-                    "https://via.placeholder.com/150?text=No+Image")
-                }
-              />
-              <h4>{p.name}</h4>
-              <p className="price">₹{p.price}</p>
-              <small>{p.subCategory}</small>
+              <div className="img-container">
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  onError={(e) =>
+                    (e.target.src = "https://via.placeholder.com/150?text=No+Image")
+                  }
+                />
+              </div>
+              <div className="card-content">
+                <h4>{p.name}</h4>
+                <p className="price">₹{p.price}</p>
+                <small className="sub-cat">{p.subCategory}</small>
+              </div>
             </div>
           ))}
         </div>
@@ -60,13 +69,19 @@ const Search = () => {
 
       {/* ---------- STYLES ---------- */}
       <style>{`
+        /* =========================================
+           1. BASE STYLES (General)
+           ========================================= */
         .search-page {
-          padding: 30px 40px;
           background: #f9f9f9;
           min-height: 100vh;
+          font-family: 'Inter', sans-serif;
         }
 
-        /* ---------- BACK BUTTON ---------- */
+        .search-header {
+           margin-bottom: 20px;
+        }
+
         .back-btn {
           background: #ffffff;
           border: 1px solid #ddd;
@@ -74,7 +89,6 @@ const Search = () => {
           border-radius: 10px;
           cursor: pointer;
           font-weight: 600;
-          margin-bottom: 20px;
           transition: 0.3s;
         }
 
@@ -84,113 +98,100 @@ const Search = () => {
           border-color: #ff6a00;
         }
 
-        /* ---------- TITLE ---------- */
         .search-title {
-          font-size: 26px;
-          margin-bottom: 25px;
-          line-height: 1.3;
+          font-weight: 700;
+          margin-bottom: 30px;
+          color: #222;
         }
 
         .search-title span {
           color: #ff6a00;
         }
 
-        /* ---------- EMPTY STATE ---------- */
-        .no-results {
-          margin-top: 30px;
-          font-size: 18px;
-          color: #555;
-        }
-
-        /* ---------- GRID ---------- */
         .product-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
           gap: 25px;
         }
 
-        /* ---------- CARD ---------- */
         .product-card {
           background: #fff;
           border-radius: 16px;
           padding: 16px;
           text-align: center;
-          box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-          transition: 0.3s;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
           cursor: pointer;
+          display: flex;
+          flex-direction: column;
         }
 
         .product-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        .product-card img {
+        .img-container {
           width: 100%;
-          height: 180px;
-          object-fit: contain;
           border-radius: 12px;
-          margin-bottom: 10px;
+          overflow: hidden;
+          margin-bottom: 12px;
         }
 
-        .product-card h4 {
-          font-size: 16px;
-          margin: 8px 0 4px;
-          font-weight: 600;
+        .img-container img {
+          width: 100%;
+          object-fit: contain;
         }
 
         .price {
           color: #e63946;
           font-weight: 700;
-          margin: 6px 0;
-          font-size: 15px;
+          margin: 8px 0;
         }
 
-        .product-card small {
+        .sub-cat {
           color: #888;
           text-transform: capitalize;
-          font-size: 13px;
         }
 
-        /* ---------- TABLET ---------- */
-        @media (max-width: 768px) {
-          .search-page {
-            padding: 20px;
-          }
-
-          .search-title {
-            font-size: 22px;
-          }
-
-          .product-grid {
-            gap: 20px;
-          }
-        }
-
-        /* ---------- MOBILE ---------- */
+        /* =========================================
+           2. MOBILE VIEW (Up to 480px)
+           ========================================= */
         @media (max-width: 480px) {
-          .search-page {
-            padding: 16px;
-          }
+          .search-page { padding: 15px; }
+          .back-btn { width: 100%; }
+          .search-title { font-size: 1.2rem; text-align: center; }
+          .product-grid { grid-template-columns: 1fr; }
+          .img-container img { height: 200px; }
+        }
 
-          .back-btn {
-            width: 100%;
-            text-align: center;
-            padding: 12px;
-          }
+        /* =========================================
+           3. TABLET VIEW (481px - 768px)
+           ========================================= */
+        @media (min-width: 481px) and (max-width: 768px) {
+          .search-page { padding: 25px; }
+          .search-title { font-size: 1.5rem; }
+          .product-grid { grid-template-columns: repeat(2, 1fr); }
+          .img-container img { height: 160px; }
+        }
 
-          .search-title {
-            font-size: 20px;
-            margin-bottom: 18px;
-          }
+        /* =========================================
+           4. LAPTOP VIEW (769px - 1439px)
+           ========================================= */
+        @media (min-width: 769px) and (max-width: 1439px) {
+          .search-page { padding: 40px; }
+          .search-title { font-size: 1.8rem; }
+          .product-grid { grid-template-columns: repeat(3, 1fr); }
+          .img-container img { height: 180px; }
+        }
 
-          .product-card img {
-            height: 150px;
-          }
-
-          .product-card h4 {
-            font-size: 15px;
-          }
+        /* =========================================
+           5. DESKTOP VIEW (1440px and above)
+           ========================================= */
+        @media (min-width: 1440px) {
+          .search-page { padding: 60px 10%; }
+          .search-title { font-size: 2.2rem; }
+          .product-grid { grid-template-columns: repeat(4, 1fr); gap: 35px; }
+          .img-container img { height: 220px; }
         }
       `}</style>
     </div>

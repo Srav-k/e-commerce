@@ -28,13 +28,12 @@ const Navbar = () => {
     const savedUser = JSON.parse(localStorage.getItem("LOGGED_IN_USER"));
     setUser(savedUser);
 
-    // 🔧 FIX: keep navbar user state in sync after login/logout
     const syncUser = () => {
       const updatedUser = JSON.parse(localStorage.getItem("LOGGED_IN_USER"));
       setUser(updatedUser);
     };
 
-    window.addEventListener("storage", syncUser); // 🔧 FIX
+    window.addEventListener("storage", syncUser);
 
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -45,7 +44,7 @@ const Navbar = () => {
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      window.removeEventListener("storage", syncUser); // 🔧 FIX
+      window.removeEventListener("storage", syncUser);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
@@ -59,7 +58,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("LOGGED_IN_USER"); // 🔧 FIX: ensure correct key is cleared
+    localStorage.removeItem("LOGGED_IN_USER");
     setUser(null);
     setOpenProfile(false);
     setMenuOpen(false);
@@ -69,138 +68,105 @@ const Navbar = () => {
   return (
     <>
       <nav className="navbar">
-        {/* LEFT */}
-        <div className="navbar-left">
-          <Link to="/" className="logo" onClick={() => setMenuOpen(false)}>
-            Shoonu<span>Shop</span>
-          </Link>
+        <div className="navbar-container">
+          {/* LEFT SECTION */}
+          <div className="navbar-left">
+            <Link to="/" className="logo" onClick={() => setMenuOpen(false)}>
+              Shoonu<span>Shop</span>
+            </Link>
 
-          <div className="search-box desktop-only">
-            <FiSearch />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleSearch}
-            />
-          </div>
-        </div>
-
-        {/* HAMBURGER */}
-        <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </div>
-
-        {/* RIGHT */}
-        <div className={`navbar-right ${menuOpen ? "open" : ""}`}>
-          <div className="search-box mobile-only">
-            <FiSearch />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleSearch}
-            />
+            <div className="search-box desktop-only">
+              <FiSearch />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleSearch}
+              />
+            </div>
           </div>
 
-          <Link
-            to="/wishlist"
-            className="nav-item"
-            onClick={() => setMenuOpen(false)}
-          >
-            <FaHeart />
-            Wishlist
-            {wishlistItems?.length > 0 && (
-              <span className="badge">{wishlistItems.length}</span>
-            )}
-          </Link>
+          {/* RIGHT SECTION & MENU */}
+          <div className={`navbar-right ${menuOpen ? "open" : ""}`}>
+            
 
-          <Link
-            to="/cart"
-            className="nav-item"
-            onClick={() => setMenuOpen(false)}
-          >
-            <FaShoppingCart />
-            Cart
-            {cartItems?.length > 0 && (
-              <span className="badge">{cartItems.length}</span>
-            )}
-          </Link>
+            <Link to="/wishlist" className="nav-item" onClick={() => setMenuOpen(false)}>
+              <FaHeart />
+              <span className="nav-text">Wishlist</span>
+              {wishlistItems?.length > 0 && <span className="badge">{wishlistItems.length}</span>}
+            </Link>
 
-          <div className="profile-wrapper" ref={profileRef}>
-            <div
-              className="nav-item"
-              onClick={() => {
-                if (!user) {
-                  navigate("/login");
-                  setMenuOpen(false);
-                } else {
-                  setOpenProfile(!openProfile);
-                }
-              }}
-            >
-              <FaUser />
-              {user ? user.fullName : "Profile"}
+            <Link to="/cart" className="nav-item" onClick={() => setMenuOpen(false)}>
+              <FaShoppingCart />
+              <span className="nav-text">Cart</span>
+              {cartItems?.length > 0 && <span className="badge">{cartItems.length}</span>}
+            </Link>
+
+            <div className="profile-wrapper" ref={profileRef}>
+              <div
+                className="nav-item"
+                onClick={() => {
+                  if (!user) {
+                    navigate("/login");
+                    setMenuOpen(false);
+                  } else {
+                    setOpenProfile(!openProfile);
+                  }
+                }}
+              >
+                <FaUser />
+                <span className="nav-text">{user ? user.fullName : "Profile"}</span>
+              </div>
+
+              {user && openProfile && (
+                <div className="profile-dropdown">
+                  <p className="name">{user.fullName}</p>
+                  <p className="email">{user.email}</p>
+                  <button onClick={() => { navigate("/profile"); setOpenProfile(false); }}>
+                    View Profile
+                  </button>
+                  <button className="logout" onClick={handleLogout}>
+                    <FaSignOutAlt /> Logout
+                  </button>
+                </div>
+              )}
             </div>
 
-            {user && openProfile && (
-              <div className="profile-dropdown">
-                <p className="name">{user.fullName}</p>
-                <p className="email">{user.email}</p>
-
-                <button
-                  onClick={() => {
-                    navigate("/profile");
-                    setOpenProfile(false); // 🔧 FIX: close dropdown after navigation
-                  }}
-                >
-                  View Profile
-                </button>
-
-                <button className="logout" onClick={handleLogout}>
-                  <FaSignOutAlt /> Logout
-                </button>
+            {!user && (
+              <div className="auth-group">
+                <Link to="/login" className="auth-btn login" onClick={() => setMenuOpen(false)}>
+                  Login
+                </Link>
+                <Link to="/signup" className="auth-btn signup" onClick={() => setMenuOpen(false)}>
+                  Signup
+                </Link>
               </div>
             )}
           </div>
 
-          {!user && (
-            <>
-              <Link
-                to="/login"
-                className="auth-btn login"
-                onClick={() => setMenuOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="auth-btn signup"
-                onClick={() => setMenuOpen(false)}
-              >
-                Signup
-              </Link>
-            </>
-          )}
+          {/* HAMBURGER FOR MOBILE */}
+          <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </div>
         </div>
       </nav>
 
-      {/* STYLES */}
       <style>{`
+        /* =========================================
+           1. BASE STYLES & ANIMATION
+           ========================================= */
         .navbar {
           height: 80px;
-          padding: 0 24px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background: linear-gradient(-45deg,#6c63ff,#ff4d4d,#00c9a7,#f9d423);
+          width: 100%;
+          background: linear-gradient(-45deg, #6c63ff, #ff4d4d, #00c9a7, #f9d423);
           background-size: 400% 400%;
           animation: gradientMove 10s linear infinite;
           position: sticky;
           top: 0;
           z-index: 1000;
+          display: flex;
+          align-items: center;
         }
 
         @keyframes gradientMove {
@@ -209,175 +175,141 @@ const Navbar = () => {
           100% { background-position: 0% 50%; }
         }
 
-        .navbar-left {
+        .navbar-container {
+          width: 100%;
+          max-width: 1800px;
+          margin: 0 auto;
           display: flex;
           align-items: center;
-          gap: 20px;
+          justify-content: space-between;
+          padding: 0 20px;
         }
 
-        .logo {
-          font-size: 26px;
-          font-weight: 800;
-          color: #fff;
-          text-decoration: none;
-        }
+        .navbar-left { display: flex; align-items: center; gap: 30px; }
+        .navbar-right { display: flex; align-items: center; gap: 25px; }
 
-        .logo span {
-          color: #ffd700;
-        }
+        .logo { font-size: 26px; font-weight: 800; color: #fff; text-decoration: none; white-space: nowrap; }
+        .logo span { color: #ffd700; }
 
         .search-box {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           background: #fff;
-          padding: 8px 14px;
+          padding: 8px 16px;
           border-radius: 25px;
-          width: 300px;
+          color: #333;
         }
-
-        .search-box input {
-          border: none;
-          outline: none;
-          flex: 1;
-        }
-
-        .navbar-right {
-          display: flex;
-          align-items: center;
-          gap: 18px;
-        }
+        .search-box input { border: none; outline: none; flex: 1; font-size: 14px; background: transparent; }
 
         .nav-item {
           color: #fff;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           cursor: pointer;
           position: relative;
           text-decoration: none;
           font-weight: 600;
+          transition: opacity 0.3s;
         }
+        .nav-item:hover { opacity: 0.8; }
 
         .badge {
           position: absolute;
-          top: -6px;
-          right: -10px;
-          background: red;
+          top: -8px;
+          right: -12px;
+          background: #ff0000;
           color: white;
-          font-size: 11px;
+          font-size: 10px;
           border-radius: 50%;
           padding: 2px 6px;
+          border: 1px solid white;
         }
 
-        .auth-btn {
-          padding: 8px 18px;
-          border-radius: 20px;
-          font-weight: bold;
-          text-decoration: none;
-        }
-
-        .login {
-          background: #fff;
-          color: #333;
-        }
-
-        .signup {
-          background: #ffd700;
-          color: #333;
-        }
-
-        .profile-wrapper {
-          position: relative;
-        }
-
+        .profile-wrapper { position: relative; }
         .profile-dropdown {
           position: absolute;
           right: 0;
           top: 45px;
           background: #fff;
-          width: 220px;
-          padding: 14px;
-          border-radius: 10px;
-          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+          border-radius: 12px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+          padding: 15px;
+          z-index: 1001;
+          min-width: 200px;
           color: #333;
         }
-
-        .profile-dropdown .name {
-          font-weight: bold;
+        .profile-dropdown p { margin: 0 0 5px 0; font-size: 14px; }
+        .profile-dropdown .name { font-weight: 700; }
+        .profile-dropdown .email { color: #666; font-size: 12px; margin-bottom: 10px; }
+        .profile-dropdown button { 
+          width: 100%; padding: 8px; margin-top: 5px; cursor: pointer; border-radius: 6px; 
+          border: 1px solid #ddd; background: #f9f9f9; font-weight: 600;
         }
+        .profile-dropdown button.logout { background: #ffeded; color: #ff4d4d; border-color: #ffcccc; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        .profile-dropdown .email {
-          font-size: 13px;
-          color: #666;
-          margin-bottom: 10px;
-        }
+        .auth-group { display: flex; align-items: center; gap: 15px; }
+        .auth-btn { padding: 8px 20px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 14px; transition: 0.3s; }
+        .login { background: transparent; color: #fff; border: 2px solid #fff; }
+        .signup { background: #ffd700; color: #333; border: 2px solid #ffd700; }
 
-        .profile-dropdown button {
-          width: 100%;
-          padding: 8px;
-          border: none;
-          border-radius: 6px;
-          background: #ff4d4d;
-          color: #fff;
-          cursor: pointer;
-          margin-top: 8px;
-        }
+        .hamburger { display: none; font-size: 24px; color: #fff; cursor: pointer; z-index: 1002; }
 
-        .hamburger {
-          display: none;
-          font-size: 26px;
-          color: #fff;
-          cursor: pointer;
-        }
-
-        .mobile-only {
-          display: none;
-          width: 100%;
-        }
-
-        @media (max-width: 900px) {
-          .hamburger {
-            display: block;
-          }
-
-          .desktop-only {
-            display: none;
-          }
+        /* =========================================
+           2. MOBILE VIEW (Up to 767px)
+           ========================================= */
+        @media (max-width: 767px) {
+          .desktop-only { display: none; }
+          .mobile-only { display: flex; width: 100%; margin-bottom: 20px; }
+          .hamburger { display: block; }
 
           .navbar-right {
             position: fixed;
-            top: 80px;
-            left: 0;
-            width: 100%;
-            background: #111;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            height: 100vh;
+            background: #1a1a1a;
             flex-direction: column;
-            padding: 20px;
-            display: none;
+            align-items: flex-start;
+            padding: 100px 30px;
+            transition: 0.4s ease-in-out;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+            z-index: 999;
           }
+          .navbar-right.open { right: 0; }
 
-          .navbar-right.open {
-            display: flex;
-          }
+          .nav-item { font-size: 18px; margin-bottom: 20px; width: 100%; padding: 10px 0; border-bottom: 1px solid #333; }
+          .auth-group { display: flex; flex-direction: column; gap: 15px; width: 100%; margin-top: 10px; }
+          .auth-btn { text-align: center; width: 100%; }
+          
+          .profile-dropdown { position: static; box-shadow: none; width: 100%; padding: 10px 0; background: transparent; color: #fff; }
+          .profile-dropdown p, .profile-dropdown .email { color: #ccc; }
+          .profile-dropdown button { background: #333; color: #fff; border: none; }
+        }
 
-          .nav-item,
-          .auth-btn {
-            width: 100%;
-            justify-content: center;
-          }
+        /* =========================================
+           3. TABLET VIEW (768px - 1023px)
+           ========================================= */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .search-box.desktop-only { width: 180px; }
+          .navbar-right { gap: 15px; }
+          .nav-text { display: none; }
+          .auth-btn { padding: 8px 12px; font-size: 13px; }
+          .navbar{ width: 100%;}
+        }
 
-          .mobile-only {
-            display: flex;
-          }
+        /* =========================================
+           4. LAPTOP & DESKTOP (1024px+)
+           ========================================= */
+        @media (min-width: 1024px) {
+          .mobile-only { display: none; }
+          .search-box.desktop-only { width: 250px; }
+        }
 
-          .search-box {
-            width: 100%;
-          }
-
-          .profile-dropdown {
-            left: 50%;
-            transform: translateX(-50%);
-          }
+        @media (min-width: 1440px) {
+          .search-box.desktop-only { width: 350px; }
         }
       `}</style>
     </>

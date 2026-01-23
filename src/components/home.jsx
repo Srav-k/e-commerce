@@ -87,6 +87,7 @@ const Home = () => {
 
       {/* ========= RESPONSIVE INTERNAL CSS ========= */}
       <style>{`
+        /* 1. BASE STYLES (Applies to all) */
         * {
           box-sizing: border-box;
         }
@@ -95,18 +96,22 @@ const Home = () => {
           margin: 0;
           padding: 0;
           overflow-x: hidden;
+          background-color: transparent;
         }
 
         .carousel {
           position: relative;
           width: 100%;
-          min-height: 60vh;
+          display: flex;
+          overflow: hidden;
+          background-color: rgba(0,0,0,0.8);
         }
 
         .carousel-video {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          background-color: rgba(0,0,0,0.8);
         }
 
         .video-overlay {
@@ -116,139 +121,139 @@ const Home = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 20px;
           text-align: center;
         }
 
         .video-content {
-          width: 100%;
-          max-width: 900px;
           color: #fff;
+          width: 100%;
         }
 
         .video-content h1 {
-          font-size: clamp(24px, 6vw, 60px);
           font-weight: 800;
-          line-height: 1.2;
-        }
-
-        .video-content p {
-          font-size: clamp(14px, 3.5vw, 24px);
-          margin: 14px 0 24px;
+          margin: 0;
         }
 
         .hero-buttons {
           display: flex;
-          gap: 14px;
           justify-content: center;
           flex-wrap: wrap;
-        }
+          gap:10px;
+          margin-top:15px;
+                  }
 
         .hero-buttons button {
-          padding: 12px 24px;
-          border-radius: 24px;
           border: none;
           font-weight: bold;
           cursor: pointer;
           background: #ffd700;
-          font-size: 15px;
-          min-width: 150px;
+          transition: 0.3s;
         }
 
         .secondary {
-          background: #ffffff;
+          background: #ffffff !important;
           color: #333;
         }
 
         .section-title {
-          text-align: center;
-          margin: 40px 16px 24px;
-          font-size: clamp(22px, 4vw, 34px);
           font-weight: 800;
+          color: #222;
         }
 
         .category-grid {
           display: grid;
-          grid-template-columns: 1fr;
-          gap: 18px;
-          padding: 0 16px;
-          margin-bottom: 60px;
+          width: 100%;
         }
 
         .category-card {
           background: #fff;
-          border-radius: 18px;
+          border-radius: 12px;
           cursor: pointer;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-          transition: transform 0.3s ease;
-          text-align: center;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
           overflow: hidden;
-        }
-
-        .category-card:hover {
-          transform: translateY(-6px);
+          text-align: center;
+          border: 1px solid #eee;
         }
 
         .category-card img {
           width: 100%;
-          height: 180px;
           object-fit: cover;
         }
 
-        .category-card p {
-          padding: 14px;
-          font-size: 16px;
-          font-weight: bold;
+        /* 2. MOBILE VIEW (Up to 767px) */
+        @media (max-width: 767px) {
+          /* Overriding parent containers that might squeeze mobile view */
+          main, .App, #root { padding: 0 !important; margin: 0 !important; }
+
+          .carousel { height: 50vh; }
+          
+          .video-content { padding: 0 20px; }
+          .video-content h1 { font-size: 26px; }
+          .video-content p { font-size: 14px; margin: 10px 0 20px; }
+
+          .hero-buttons { gap: 10px; flex-direction: column; align-items: center; }
+          .hero-buttons button { width: 85%; padding: 12px; border-radius: 8px; }
+
+          .section-title { margin: 30px 20px 15px; font-size: 22px; text-align: left; }
+
+          .category-grid { 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            padding: 0 20px 40px; /* LEFT & RIGHT SIDE SPACING */
+          }
+          .category-card img { height: 120px; }
+          .category-card p { padding: 10px; font-size: 14px; margin: 0; }
         }
 
-        /* ===== TABLET ===== */
-        @media (min-width: 600px) {
-          .category-grid {
-            grid-template-columns: repeat(2, 1fr);
-            padding: 0 24px;
-          }
+        /* 3. TABLET VIEW (768px to 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .carousel { height: 60vh; width: 100vw; }
+          
+          .video-content h1 { font-size: 40px; }
+          
+          .hero-buttons { gap: 15px; }
+          .hero-buttons button { padding: 14px 30px; border-radius: 10px; }
+
+          .section-title { margin: 40px 30px 20px; font-size: 28px; }
+
+          .category-grid { 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; 
+            width: 100vw;
+            padding: 0 30px 60px; /* MODERATE SIDE SPACING */
+          }   
+          .category-card img { height: 180px; }
         }
 
-        @media (min-width: 768px) {
-          .carousel {
-            min-height: 65vh;
-          }
+        /* 4. LAPTOP VIEW (1024px to 1439px) */
+        @media (min-width: 1024px) and (max-width: 1439px) {
+          .carousel { height: 75vh; }
 
-          .category-grid {
-            grid-template-columns: repeat(3, 1fr);
-            padding: 0 40px;
-            margin-bottom: 80px;
-          }
+          .video-content h1 { font-size: 50px; }
 
-          .category-card img {
-            height: 220px;
+          .category-grid { 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 25px; 
+            padding: 0 60px 80px; 
           }
+          .category-card img { height: 220px; }
         }
 
-        /* ===== DESKTOP ===== */
-        @media (min-width: 1024px) {
-          .carousel {
-            min-height: 80vh;
-          }
+        /* 5. DESKTOP VIEW (1440px and above) */
+        @media (min-width: 1440px) {
+          .carousel { height: 85vh; }
 
-          .category-grid {
-            grid-template-columns: repeat(4, 1fr);
-            padding: 0 60px;
-            margin-bottom: 100px;
-          }
+          .video-content h1 { font-size: 60px; }
 
-          .category-card img {
-            height: 260px;
+          .category-grid { 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 30px; 
+            padding: 0;
+            max-width: 1350px; /* Centers content on huge screens */
+            margin: 0 auto 100px;
           }
-        }
-
-        /* ===== LARGE SCREENS ===== */
-        @media (min-width: 1400px) {
-          .category-grid {
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-          }
+          .category-card img { height: 260px; }
+          .category-card:hover { transform: translateY(-8px); transition: 0.3s; }
         }
       `}</style>
     </>
